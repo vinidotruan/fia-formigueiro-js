@@ -1,0 +1,19 @@
+- Delimitar o ambiente em uma matriz, representação da matriz gráfica (Observe o exemplo abaixo).
+- Descrição detalhada dos agentes e suas ações no ambiente (Qual a função de cada um, se é reativo
+(apenas reage a uma percepção do ambiente) ou com estados (possui algum tipo de informação e qual
+informação)).
+- Descrição da linguagem de programação escolhida.
+
+
+matrix 10x10
+
+================= REGRAS  DE NEGÓCIO =================
+- SÓ PODE SE MOVER PARA "N", "C" OU "V"
+- SE MOVER PARA "V" FICA "F".
+	- QUANDO SAIR DE "V" FICA "V".
+- SE MOVER PARA "C" FICA "CF".
+	- QUANDO SAIR DE "C" FICA "V".
+- SE MOVER PARA "N" FICA "NF".
+	- QUANDO SAIR DE "N" FICA "N".
+- PEGOU UMA COMIDA, VAI PRA PRÓXIMA.	
+- PODE ACUMULAR COMIDAS.
