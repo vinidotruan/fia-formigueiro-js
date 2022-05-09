@@ -11,12 +11,14 @@ const ambiente = [
 ];
 
 const formiga = { valor: "F", quantidade: 0, limite: 1 };
-const comida = { valor: "C", quantidade: 0, limite: 7 };
+const comida = { valor: "C", quantidade: 0, limite: 7, min: 1 };
 const ninho = { valor: "N", quantidade: 0, limite: 1 };
 const predador = { valor: "P", quantidade: 0, limite: 4 };
 const vazio = { valor: "V", quantidade: 0, limite: -1 };
+
 const movimentos = [];
 let comidasArmazenadas = 0;
+
 let formigaCoordenadas;
 let comidasCoordenadas = [];
 let ninhoCoordenadas = {};
@@ -147,18 +149,21 @@ function buscarComidaMaisProxima() {
   console.log("Buscando nova rota de comida");
 
   const comidas = comidasCoordenadas.filter((comida) => !comida.pega);
+  console.log({ comidas });
   if (comidas.length > 0) {
-    comidaMaisProxima = comidas.reduce(function (anterior, corrente) {
-      return Math.abs(corrente.linha - formigaCoordenadas.linha) <
-        Math.abs(anterior.linha - formigaCoordenadas.linha) &&
-        Math.abs(corrente.coluna - formigaCoordenadas.coluna) <
-          Math.abs(anterior.coluna - formigaCoordenadas.coluna)
-        ? corrente
-        : anterior;
-    });
+    comidaMaisProxima = comidasCoordenadas
+      .filter((comida) => !comida.pega)
+      .reduce(function (anterior, corrente) {
+        return Math.abs(corrente.linha - formigaCoordenadas.linha) +
+          Math.abs(corrente.coluna - formigaCoordenadas.coluna) <=
+          Math.abs(anterior.linha - formigaCoordenadas.linha) +
+            Math.abs(anterior.coluna - formigaCoordenadas.coluna)
+          ? corrente
+          : anterior;
+      });
 
     console.log({ comidaMaisProxima });
-    irParaComidaMaisProxima();
+    return irParaComidaMaisProxima();
   } else {
     alert("ACABOU AS COMIDAS");
     return false;
@@ -174,6 +179,7 @@ function buscarFormiga() {
     });
   });
 }
+
 function atualizarCelulaAnterior(linhaAtual, colunaAtual) {
   ambiente[linhaAtual][colunaAtual] = temNinho(linhaAtual, colunaAtual)
     ? "N"
@@ -196,13 +202,14 @@ function pegarComida() {
   console.table(ambiente);
   comidasArmazenadas++;
   unidadeFormiga = `F${"C".repeat(comidasArmazenadas)}`;
-  comidasCoordenadas.map(
-    (comida) =>
-      (comida.pega =
-        comida.linha === formigaCoordenadas.linha &&
-        comida.coluna === formigaCoordenadas.coluna)
-  );
+
+  comidasCoordenadas.map((comida) => {
+    return (comida.pega =
+      comida.linha === formigaCoordenadas.linha &&
+      comida.coluna === formigaCoordenadas.coluna);
+  });
   buscarComidaMaisProxima();
+  return ambiente;
 }
 
 function descer(linhaAtual, colunaAtual) {
@@ -249,98 +256,75 @@ function esquerda(linhaAtual, colunaAtual) {
 function irParaComidaMaisProxima() {
   while (comidasArmazenadas !== comidasCoordenadas.length) {
     if (
-      podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna) &&
-      movimentos[movimentos.length - 1] != "esquerda"
-    ) {
-      direita(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-      movimentos.push("direita");
-    } else if (
+      formigaCoordenadas.coluna > comidaMaisProxima.coluna &&
       podeIrEsquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
     ) {
       esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna);
       movimentos.push("esquerda");
     } else if (
-      podeIrCima(formigaCoordenadas.linha, formigaCoordenadas.coluna) &&
-      movimentos[movimentos.length - 1] != "descer"
+      formigaCoordenadas.coluna < comidaMaisProxima.coluna &&
+      podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
     ) {
-      subir(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-      movimentos.push("cima");
-    } else if (
-      podeIrBaixo(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-    ) {
-      descer(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-      movimentos.push("baixo");
+      direita(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+      movimentos.push("direita");
     } else {
-      console.log("Não pode ir pra nenhum lugar");
-      console.log({ movimentos });
+      if (
+        formigaCoordenadas.linha < comidaMaisProxima.linha &&
+        podeIrBaixo(formigaCoordenadas.linha, formigaCoordenadas.coluna)
+      ) {
+        descer(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+        movimentos.push("descer");
+      } else if (
+        formigaCoordenadas.linha > comidaMaisProxima.linha &&
+        podeIrCima(formigaCoordenadas.linha, formigaCoordenadas.coluna)
+      ) {
+        subir(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+        movimentos.push("subir");
+      } else {
+        irParaComidaMaisProxima();
+      }
       break;
     }
+    // if (
+    //   podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna) &&
+    //   movimentos[movimentos.length - 1] != "esquerda"
+    // ) {
+    //   direita(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+    //   movimentos.push("direita");
+    // } else if (
+    //   podeIrEsquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
+    // ) {
+    //   esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+    //   movimentos.push("esquerda");
+    // } else if (
+    //   podeIrCima(formigaCoordenadas.linha, formigaCoordenadas.coluna) &&
+    //   movimentos[movimentos.length - 1] != "descer"
+    // ) {
+    //   subir(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+    //   movimentos.push("cima");
+    // } else if (
+    //   podeIrBaixo(formigaCoordenadas.linha, formigaCoordenadas.coluna)
+    // ) {
+    //   descer(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+    //   movimentos.push("baixo");
+    // } else {
+    //   console.log("Não pode ir pra nenhum lugar");
+    //   console.log({ movimentos });
+    //   break;
+    // }
   }
   console.log({ movimentos });
 }
 
-irAteComida = (coordenadas) => {
-  while (
-    comidasArmazenadas != comidasCoordenadas.length &&
-    (coordenadas.linha !== formigaCoordenadas.linha ||
-      coordenadas.coluna !== formigaCoordenadas.coluna)
-  ) {
-    /**
-     * Caso eu tenha que descer e não possa descer por algum motivo,
-     * tenho que ir para os lados e tentar descer
-     */
-    if (coordenadas.linha > formigaCoordenadas.linha) {
-      if (podeIrBaixo(formigaCoordenadas.linha, formigaCoordenadas.coluna)) {
-        console.log("descendo");
-        descer(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-      } else {
-        console.log("A formiga não pode descer, está tentando outro caminho");
-        podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          ? direita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          : {};
-        podeIrEsquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          ? esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          : {};
-      }
-    } else if (coordenadas.linha < formigaCoordenadas.linha) {
-      if (podeIrCima(formigaCoordenadas.linha, formigaCoordenadas.coluna)) {
-        console.log("subindo");
-        subir(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-      } else {
-        console.log("A formiga não pode subir, está tentando outro caminho");
-        podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          ? direita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          : {};
-        podeIrEsquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          ? esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          : {};
-      }
-    } else {
-      if (coordenadas.coluna > formigaCoordenadas.coluna) {
-        podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          ? direita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          : moverVertical();
-      } else if (coordenadas.coluna < formigaCoordenadas.coluna) {
-        console.log("Formiga precisa ir para esquerda");
-        podeIrEsquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          ? esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-          : moverVertical();
-      } else {
-        console.log("Ela não precisa ir a lugar algum");
-      }
-    }
-  }
-};
-
-function moverVertical(linha, coluna) {
-  if (podeIrBaixo(linha, coluna)) {
-    return descer(linha, coluna);
-  }
-  if (podeIrCima(linha, coluna)) {
-    return subir(linha, coluna);
-  }
-  return false;
-}
+// function moverVertical(linha, coluna) {
+//   if (podeIrBaixo(linha, coluna)) {
+//     return descer(linha, coluna);
+//   }
+//   if (podeIrCima(linha, coluna)) {
+//     return subir(linha, coluna);
+//   }
+//   return false;
+// }
 
 const jogar = () => {
   buscarFormiga();

@@ -4,6 +4,7 @@
 informação)).
 - Descrição da linguagem de programação escolhida.
 
+formiga -> andarDireita, andarEsq, subir, descer,  pegarComida, voltarProNinho.
 
 matrix 10x10
 

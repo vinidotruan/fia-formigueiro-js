@@ -1,0 +1,14 @@
+#erro
+não deve mas pode
+
+- devo ir e posso (esq/dir)
+	- sim
+	- nao
+		devor ir e posso (cima/baixo)
+			- sim
+			- nao
+				- posso ir (esq/dir)
+  
+
+#erro
+loop esq dir esq dir
