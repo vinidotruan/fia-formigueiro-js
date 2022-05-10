@@ -1,5 +1,6 @@
 Array.prototype.random = function () {
-  return this[Math.floor(Math.random() * this.length)];
+  const result = Math.random() * this.length;
+  return this[Math.floor(result)];
 };
 
 const ambiente = [
@@ -37,10 +38,10 @@ const gerarAmbiente = () => {
 };
 
 const elementoAleatorio = () => {
-  const elementos = [comida, ninho, formiga, predador];
+  const elementos = [comida, ninho, predador, formiga];
   const elementoAtual = elementos.random();
 
-  if (elementoAtual.quantidade != elementoAtual.limite) {
+  if (elementoAtual.quantidade !== elementoAtual.limite) {
     elementoAtual.quantidade++;
     return elementoAtual;
   }
@@ -149,7 +150,7 @@ function buscarComidaMaisProxima() {
   console.log("Buscando nova rota de comida");
 
   const comidas = comidasCoordenadas.filter((comida) => !comida.pega);
-  console.log({ comidas });
+  console.log("Quantidade de comidas a serem recolhidas: ", comidas.length);
   if (comidas.length > 0) {
     comidaMaisProxima = comidasCoordenadas
       .filter((comida) => !comida.pega)
@@ -162,7 +163,7 @@ function buscarComidaMaisProxima() {
           : anterior;
       });
 
-    console.log({ comidaMaisProxima });
+    console.log("A comida mais próxima está em: ", comidaMaisProxima);
     return irParaComidaMaisProxima();
   } else {
     alert("ACABOU AS COMIDAS");
@@ -173,11 +174,14 @@ function buscarComidaMaisProxima() {
 function buscarFormiga() {
   ambiente.map((linha, indexLinha) => {
     linha.map((coluna, indexColuna) => {
-      if (coluna.includes("F")) {
+      if (coluna === "F") {
+        console.log({ indexLinha }, { indexColuna });
         formigaCoordenadas = { linha: indexLinha, coluna: indexColuna };
+        return coluna;
       }
     });
   });
+  console.log({ formigaCoordenadas });
 }
 
 function atualizarCelulaAnterior(linhaAtual, colunaAtual) {
@@ -199,15 +203,21 @@ function atualizarColunaAtual(linha, coluna) {
 
 function pegarComida() {
   console.log("Formiga pegou uma comida");
-  console.table(ambiente);
-  comidasArmazenadas++;
-  unidadeFormiga = `F${"C".repeat(comidasArmazenadas)}`;
 
   comidasCoordenadas.map((comida) => {
-    return (comida.pega =
+    if (
       comida.linha === formigaCoordenadas.linha &&
-      comida.coluna === formigaCoordenadas.coluna);
+      comida.coluna === formigaCoordenadas.coluna
+    ) {
+      comida.pega = true;
+      comidasArmazenadas++;
+    }
   });
+  unidadeFormiga = `F${"C".repeat(comidasArmazenadas)}`;
+
+  // console.table(ambiente);
+  console.log({ comidasCoordenadas });
+
   buscarComidaMaisProxima();
   return ambiente;
 }
@@ -254,6 +264,8 @@ function esquerda(linhaAtual, colunaAtual) {
 }
 
 function irParaComidaMaisProxima() {
+  console.log({ comidasArmazenadas }, comidasCoordenadas.length);
+  // while (comidasArmazenadas < 1) {
   while (comidasArmazenadas !== comidasCoordenadas.length) {
     if (
       formigaCoordenadas.coluna > comidaMaisProxima.coluna &&
@@ -285,33 +297,6 @@ function irParaComidaMaisProxima() {
       }
       break;
     }
-    // if (
-    //   podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna) &&
-    //   movimentos[movimentos.length - 1] != "esquerda"
-    // ) {
-    //   direita(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-    //   movimentos.push("direita");
-    // } else if (
-    //   podeIrEsquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-    // ) {
-    //   esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-    //   movimentos.push("esquerda");
-    // } else if (
-    //   podeIrCima(formigaCoordenadas.linha, formigaCoordenadas.coluna) &&
-    //   movimentos[movimentos.length - 1] != "descer"
-    // ) {
-    //   subir(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-    //   movimentos.push("cima");
-    // } else if (
-    //   podeIrBaixo(formigaCoordenadas.linha, formigaCoordenadas.coluna)
-    // ) {
-    //   descer(formigaCoordenadas.linha, formigaCoordenadas.coluna);
-    //   movimentos.push("baixo");
-    // } else {
-    //   console.log("Não pode ir pra nenhum lugar");
-    //   console.log({ movimentos });
-    //   break;
-    // }
   }
   console.log({ movimentos });
 }
@@ -328,10 +313,12 @@ function irParaComidaMaisProxima() {
 
 const jogar = () => {
   buscarFormiga();
-  console.log({ formigaCoordenadas });
   buscarComidas();
   buscarNinho();
-  buscarComidaMaisProxima();
+
+  setTimeout(() => {
+    buscarComidaMaisProxima();
+  }, 2000);
 };
 
 jogar();

@@ -18,3 +18,28 @@ matrix 10x10
 	- QUANDO SAIR DE "N" FICA "N".
 - PEGOU UMA COMIDA, VAI PRA PRÓXIMA.	
 - PODE ACUMULAR COMIDAS.
+
+
+FC > CC -> irEsquerda
+FC < CC -> irDireita
+if temPredador
+FL > CL -> subir
+FL < CL -> baixo
+
+
+==========
+
+poder
+dever
+
+
+pra onde devo ir? 
+(dir - esq)
+devo -> posso ir?
+não devo -> (bai - cim)
+
+
+devo ir e posso (esq/dir)
+ sim
+ nao
+  
