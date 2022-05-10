@@ -3,7 +3,7 @@ Array.prototype.random = function () {
 };
 
 class Formiga {
-  valor = "F";
+  valor = "🐜";
   coluna;
   linha;
   ambiente;
@@ -64,7 +64,7 @@ class Formiga {
       (comida) => comida.coluna === this.coluna && comida.linha === this.linha
     );
     comida.pega = true;
-    this.valor = `F${"C".repeat(this.comidasCapturadas)}`;
+    this.valor = `🐜${"🌿".repeat(this.comidasCapturadas)}`;
     return this.valor;
   }
 
@@ -103,7 +103,6 @@ class Formiga {
         this.movimentos.push("direita");
         return this.irDireita();
       } else {
-        console.log("coluna igual");
         if (this.linha > linhaAlvo) {
           this.movimentos.push("cima");
           return this.irCima();
@@ -161,8 +160,8 @@ class Ambiente {
       [[], [], [], [], []],
     ];
 
-    let formiga = { valor: "F", quantidade: 0, limite: 1 };
-    let comida = { valor: "C", quantidade: 0, limite: 3, min: 1 };
+    let formiga = { valor: "🐜", quantidade: 0, limite: 1 };
+    let comida = { valor: "🌿", quantidade: 0, limite: 3, min: 1 };
     let ninho = { valor: "N", quantidade: 0, limite: 1 };
     let predador = { valor: "P", quantidade: 0, limite: 0 };
     let vazio = { valor: "V", quantidade: 0, limite: -1 };
@@ -192,7 +191,7 @@ class Ambiente {
   }
 
   temComida(linha, coluna) {
-    return this.ambiente[linha][coluna].includes("C");
+    return this.ambiente[linha][coluna].includes("🌿");
   }
 
   temNinho(linha, coluna) {
@@ -207,7 +206,7 @@ class Ambiente {
     let formigaCoordenadas;
     this.ambiente.map((linha, indexLinha) => {
       linha.map((coluna, indexColuna) => {
-        if (coluna === "F") {
+        if (coluna === "🐜") {
           formigaCoordenadas = { linha: indexLinha, coluna: indexColuna };
           return coluna;
         }
@@ -234,9 +233,9 @@ class Ambiente {
   mapearComidas() {
     let comidasCoordenadas = [];
     this.ambiente.map((linha, indexLinha) => {
-      if (linha.findIndex((valor) => valor.includes("C")) > -1) {
+      if (linha.findIndex((valor) => valor.includes("🌿")) > -1) {
         linha.map((coluna, indexColuna) => {
-          coluna.includes("C")
+          coluna.includes("🌿")
             ? comidasCoordenadas.push({
                 linha: indexLinha,
                 coluna: indexColuna,
