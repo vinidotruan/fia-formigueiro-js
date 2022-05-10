@@ -12,3 +12,7 @@ não deve mas pode
 
 #erro
 loop esq dir esq dir
+
+#erro
+está tentando subir quando deveria ir pra direita ou esq
+porq está validando se não pode ir pra esq/dir

@@ -14,10 +14,10 @@ const ambiente = [
 const formiga = { valor: "F", quantidade: 0, limite: 1 };
 const comida = { valor: "C", quantidade: 0, limite: 7, min: 1 };
 const ninho = { valor: "N", quantidade: 0, limite: 1 };
-const predador = { valor: "P", quantidade: 0, limite: 4 };
+const predador = { valor: "P", quantidade: 0, limite: 6 };
 const vazio = { valor: "V", quantidade: 0, limite: -1 };
 
-const movimentos = [];
+const movimentos = ["começo"];
 let comidasArmazenadas = 0;
 
 let formigaCoordenadas;
@@ -185,18 +185,24 @@ function buscarFormiga() {
 }
 
 function atualizarCelulaAnterior(linhaAtual, colunaAtual) {
-  ambiente[linhaAtual][colunaAtual] = temNinho(linhaAtual, colunaAtual)
-    ? "N"
-    : "V";
+  if (ambiente[linhaAtual][colunaAtual]) {
+    ambiente[linhaAtual][colunaAtual] = temNinho(linhaAtual, colunaAtual)
+      ? "N"
+      : "V";
+  }
   return ambiente;
 }
 
 function atualizarColunaAtual(linha, coluna) {
-  ambiente[linha][coluna] = estaVazio(linha, coluna)
-    ? `${unidadeFormiga}`
-    : `${ambiente[linha][coluna]}${unidadeFormiga}`;
+  if (ambiente[linha][coluna]) {
+    ambiente[linha][coluna] = estaVazio(linha, coluna)
+      ? `${unidadeFormiga}`
+      : `${ambiente[linha][coluna]}${unidadeFormiga}`;
 
-  temComida(linha, coluna) ? pegarComida() : {};
+    setTimeout(() => {
+      temComida(linha, coluna) ? pegarComida() : {};
+    }, 2000);
+  }
 
   return ambiente;
 }
@@ -211,14 +217,15 @@ function pegarComida() {
     ) {
       comida.pega = true;
       comidasArmazenadas++;
+      unidadeFormiga = `F${"C".repeat(comidasArmazenadas)}`;
+      return comida;
     }
+    return comida;
   });
-  unidadeFormiga = `F${"C".repeat(comidasArmazenadas)}`;
-
-  // console.table(ambiente);
-  console.log({ comidasCoordenadas });
-
-  buscarComidaMaisProxima();
+  console.log({ comidasArmazenadas });
+  setTimeout(() => {
+    buscarComidaMaisProxima();
+  }, 2000);
   return ambiente;
 }
 
@@ -228,7 +235,7 @@ function descer(linhaAtual, colunaAtual) {
 
   atualizarCelulaAnterior(linhaAtual, colunaAtual);
   atualizarColunaAtual(formigaCoordenadas.linha, colunaAtual);
-  console.table(ambiente);
+  // console.table(ambiente);
   return ambiente;
 }
 
@@ -239,7 +246,7 @@ function subir(linhaAtual, colunaAtual) {
   atualizarCelulaAnterior(linhaAtual, colunaAtual);
   atualizarColunaAtual(formigaCoordenadas.linha, colunaAtual);
 
-  console.table(ambiente);
+  // console.table(ambiente);
   return ambiente;
 }
 
@@ -249,7 +256,7 @@ function direita(linhaAtual, colunaAtual) {
   atualizarCelulaAnterior(linhaAtual, colunaAtual);
   atualizarColunaAtual(linhaAtual, formigaCoordenadas.coluna);
 
-  console.table(ambiente);
+  // console.table(ambiente);
   return ambiente;
 }
 
@@ -258,58 +265,73 @@ function esquerda(linhaAtual, colunaAtual) {
   formigaCoordenadas.coluna--;
   atualizarCelulaAnterior(linhaAtual, colunaAtual);
   atualizarColunaAtual(linhaAtual, formigaCoordenadas.coluna);
-
-  console.table(ambiente);
+  // console.table(ambiente);
   return ambiente;
 }
 
 function irParaComidaMaisProxima() {
   console.log({ comidasArmazenadas }, comidasCoordenadas.length);
   // while (comidasArmazenadas < 1) {
+  cont = 0;
   while (comidasArmazenadas !== comidasCoordenadas.length) {
+    cont++;
+    console.table(ambiente);
+
+    if (cont > 199) {
+      console.log("fourcou o vreak");
+      break;
+    }
     if (
       formigaCoordenadas.coluna > comidaMaisProxima.coluna &&
       podeIrEsquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
     ) {
-      esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna);
       movimentos.push("esquerda");
+      return esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna);
     } else if (
       formigaCoordenadas.coluna < comidaMaisProxima.coluna &&
       podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
     ) {
-      direita(formigaCoordenadas.linha, formigaCoordenadas.coluna);
       movimentos.push("direita");
+      return direita(formigaCoordenadas.linha, formigaCoordenadas.coluna);
     } else {
       if (
         formigaCoordenadas.linha < comidaMaisProxima.linha &&
         podeIrBaixo(formigaCoordenadas.linha, formigaCoordenadas.coluna)
       ) {
-        descer(formigaCoordenadas.linha, formigaCoordenadas.coluna);
         movimentos.push("descer");
+        return descer(formigaCoordenadas.linha, formigaCoordenadas.coluna);
       } else if (
         formigaCoordenadas.linha > comidaMaisProxima.linha &&
         podeIrCima(formigaCoordenadas.linha, formigaCoordenadas.coluna)
       ) {
-        subir(formigaCoordenadas.linha, formigaCoordenadas.coluna);
         movimentos.push("subir");
+        return subir(formigaCoordenadas.linha, formigaCoordenadas.coluna);
       } else {
-        irParaComidaMaisProxima();
+        if (
+          !podeIrEsquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna)
+        ) {
+          direita(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+        } else if (
+          !podeIrDireita(formigaCoordenadas.linha, formigaCoordenadas.coluna)
+        ) {
+          esquerda(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+        } else if (
+          !podeIrCima(formigaCoordenadas.linha, formigaCoordenadas.coluna)
+        ) {
+          descer(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+        } else {
+          console.log("else 2");
+          subir(formigaCoordenadas.linha, formigaCoordenadas.coluna);
+        }
+        console.log("não pode ir pra nenhum lugar");
+        // irParaComidaMaisProxima();
       }
       break;
     }
   }
   console.log({ movimentos });
+  console.table(ambiente);
 }
-
-// function moverVertical(linha, coluna) {
-//   if (podeIrBaixo(linha, coluna)) {
-//     return descer(linha, coluna);
-//   }
-//   if (podeIrCima(linha, coluna)) {
-//     return subir(linha, coluna);
-//   }
-//   return false;
-// }
 
 const jogar = () => {
   buscarFormiga();
