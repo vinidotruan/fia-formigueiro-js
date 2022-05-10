@@ -16,3 +16,11 @@ loop esq dir esq dir
 #erro
 está tentando subir quando deveria ir pra direita ou esq
 porq está validando se não pode ir pra esq/dir
+
+==================================================================
+
+primeiro definir pra onde ela pode ir
+caso ela não possa ir pra onde deve
+obrigar ela ir por outro caminho.
+
+a celula atual sempre vai ter comida por que a formiga está carregando comida e a partir de um certo ponto ele começa a atualizar
